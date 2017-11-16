@@ -1,2 +1,2 @@
 # Time-Series
-Time series modeling
+Exploring different time series models for a non-stationary dataset.
