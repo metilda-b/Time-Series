@@ -1,19 +1,24 @@
 library('TSA')
 
+
+#Load data
 imports<- read.csv("C:\\Users\\Metilda\\OneDrive - Oklahoma State University\\MSBA Sem 3\\STAT Time Series\\DATASETS\\imports.csv",sep="," , header = TRUE)
+#Convert to Time Series Data
 Yt <- ts(imports[[2]], start=c(1965,7), frequency = 12)
 
 plot(Yt)
 adf.test(Yt)
 BoxCox.ar(Yt)
-
 adf.test(log(Yt))
+
 
 ret <- (log(Yt))
 acf(ret)
 pacf(ret)
 eacf(ret)
 plot(armasubsets(ret,nma=6, nar = 6))
+
+
 a <- arima(ret, order = c(2,1,0),method='ML')
 a
 
@@ -23,6 +28,9 @@ abline(h=0)
 Box.test(rstandard(a), type="Ljung-Box", lag=10, fitdf = 2)
 
 
+a <- arima(ret, order = c(2,1,0),method='ML')
+a
+
 b <- arima(ret, order = c(2,1,1),method='ML')
 b
 
@@ -31,7 +39,7 @@ c
 
 
 
-
+#Forecasting
 b <- arima(ret, order = c(2,1,1),method='ML')
 predict(b,10)
 plot(b,n.ahead = 10)[1:3]
