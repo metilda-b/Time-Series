@@ -1,11 +1,14 @@
+## Predicting House Sales Data
+
 library('TSA')
 
 #Load data
-sales<- read.csv("\\imports.csv",sep="," , header = TRUE)
+sales<- read.csv("\\sales.csv",sep="," , header = TRUE)
+
 #Convert to Time Series Data
 Yt <- ts(sales[[2]], start=c(1965,7), frequency = 12)
 
-#Descriptive Statis
+#Descriptive Statistics
 plot(Y)
 abline(h=mean(Y))
 
