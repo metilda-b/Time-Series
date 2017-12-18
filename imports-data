@@ -1,47 +1,87 @@
 library('TSA')
 
 #Load data
-imports<- read.csv("C:\\Users\\Metilda\\OneDrive - Oklahoma State University\\MSBA Sem 3\\STAT Time Series\\DATASETS\\imports.csv",sep="," , header = TRUE)
+sales<- read.csv("\\imports.csv",sep="," , header = TRUE)
 #Convert to Time Series Data
-Yt <- ts(imports[[2]], start=c(1965,7), frequency = 12)
+Yt <- ts(sales[[2]], start=c(1965,7), frequency = 12)
 
-plot(Yt)
-adf.test(Yt)
-BoxCox.ar(Yt)
-adf.test(log(Yt))
+#Descriptive Statis
+plot(Y)
+abline(h=mean(Y))
 
-
-ret <- (log(Yt))
-acf(ret)
-pacf(ret)
-eacf(ret)
-plot(armasubsets(ret,nma=6, nar = 6))
+#Stationarity test
+adf.test(Y)
+BoxCox.ar(Y)
+acf(Y,lag.max=36)
+pacf(Y,lag.max=36)
 
 
-a <- arima(ret, order = c(2,1,0),method='ML')
-a
+#Descriptive statistics on transformed data
+adf.test(sqrt(Y))
+plot(sqrt(Y))
+abline(h=mean(sqrt(Y)))
+adf.test(sqrt(Y))
+acf(sqrt(Y))
+pacf(sqrt(Y))
+eacf(sqrt(Y))
+d <- (sqrt(Y))
+plot(armasubsets(d,nma=5, nar = 5))
 
-tsdiag(a,gof=15)
-plot(rstandard(a), ylab="Standardized residuals", type="l")
+#Model 1, AR(3) model
+mod1 <- arima(d, order=c(3,0,0), fixed = c(NA,0,NA,NA))
+mod1
+
+#Model 1 residual analysis
+
+resid1<-rstandard(mod1)
+plot(resid1)
+tsdiag(mod1, gof.lag = 15)
+acf(resid1)
+pacf(resid1)
+qqnorm(resid1)
+abline(0,1)
+
+
+#seasonal differenced data
+
+d1<-diff(Y, 12)
+d1
+plot(d1)
+acf(d1)
+pacf(d1)
+eacf(d1)
+plot(armasubsets(d1,nma=6, nar = 6))
+
+#Model 2, Seasonal AR(1,0) X AR(1,0) model
+
+mod2 <- arima(d, order=c(1,0,0), seasonal = list(order = c(1,0,0), period=12))
+mod2
+
+#Model 2 residual analysis
+
+resid2<-rstandard(mod2)
+plot(resid2)
 abline(h=0)
-Box.test(rstandard(a), type="Ljung-Box", lag=10, fitdf = 2)
+qqnorm(resid2)
+abline(0,1)
+acf(resid2)
+pacf(resid2)
+shapiro.test(resid2)
+qqnorm(resid2)
 
-
-a <- arima(ret, order = c(2,1,0),method='ML')
-a
-
-b <- arima(ret, order = c(2,1,1),method='ML')
-b
-
-c <- arima(ret, order = c(1,1,0),method='ML')
-c
+tsdiag(mod2, gof.lag = 15)
+plot(resid2, ylab="Standardized residuals", type="l")
+abline(h=0)
+Box.test(resid2, type="Ljung-Box", lag=20, fitdf = 2)
 
 
 #Forecasting
-b <- arima(ret, order = c(2,1,1),method='ML')
-predict(b,10)
-plot(b,n.ahead = 10)[1:3]
 
-c <- arima(ret, order = c(1,1,0),method='ML')
-predict(c,10)
-plot(c,n.ahead = 10)[1:3]
+predict(mod1,6)
+plot(mod1,n.ahead = 6)[1:3]
+plot(mod1,n.ahead = 100, ylab="House Sales", main ="Forecasts, Model 1", type="b")
+
+
+predict(mod2,6)
+plot(mod2,n.ahead = 6)[1:3]
+plot(mod2,n.ahead = 100, ylab="House Sales", main ="Forecasts, Model 2", type="b")
